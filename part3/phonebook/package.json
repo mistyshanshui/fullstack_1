@@ -4,8 +4,16 @@
   "description": "part3 exercises",
   "main": "index.js",
   "scripts": {
-    "test": "\"no tests yet\""
+    "start": "node ./src/index.js",
+    "test": "\"no tests yet\"",
+    "dev": "nodemon ./src/index.js"
   },
   "author": "mss",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
 }
