@@ -6,7 +6,16 @@ const app = express()
 const morgan = require('morgan')
 
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan((token, request, response)=>{
+    return [
+        token.method(request, response), 
+        token.url(request, response), 
+        token.status(request, response), 
+        token.res(request, response, 'content-length', '-'),
+        token['response-time'](request, response), ' ms',
+        JSON.stringify(request.body)
+    ].join(' ')
+}))
 
 let persons = [
     {
