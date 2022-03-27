@@ -1,0 +1,11 @@
+{
+  "name": "phonebook",
+  "version": "1.0.0",
+  "description": "part3 exercises",
+  "main": "index.js",
+  "scripts": {
+    "test": "\"no tests yet\""
+  },
+  "author": "mss",
+  "license": "MIT"
+}
