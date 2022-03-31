@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
 
 const app = express()
 app.use(cors())
@@ -17,71 +19,87 @@ app.use(morgan((token, request, response) => {
     ].join(' ')
 }))
 
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
+const url = process.env.MONGODB_URI;
+
+mongoose.connect(url)
+    .then(result => {
+        console.log("connected to MongoDB")
+    })
+    .catch(error => {
+        console.log("error connecting to MongoDB", error.message)
+    })
+
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: String
+})
+
+const Person = mongoose.model('Person', personSchema)
+personSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString()
+        delete returnedObject._id
+        delete returnedObject.__v
     }
-]
+
+})
 
 app.get('/api/persons', (request, response) => {
-    response.send(persons)
+    Person.find({}).then(results => {
+        console.log(results)
+        response.json(results)
+    })
 })
 
 app.get('/info', (request, response) => {
-    response.send(`phone book has info for ${persons.length} people <br/> ${Date()}`)
+    Person.find({}).then(results=>{
+        response.send(`phone book has info for ${results.length} people <br/> ${Date()}`)
+    })
 })
 
 app.get('/', (request, response) => {
-    response.send(`phone book has info for ${persons.length} people <br/> ${Date()}`)
+    Person.find({}).then(results=>{
+        response.send(`phone book has info for ${results.length} people <br/> ${Date()}`)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        response.json(person)
-    }
-    else {
-        response.status(404).end()
-    }
+    Person.findById(request.params.id)
+        .then(person => {
+            if (person) {
+                response.json(person)
+            }
+            else {
+                response.status(404).end()
+            }
+        })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(p => p.id !== id)
-    response.status(204).end()
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {
+            console.log(result)
+            response.status(204).end()
+        })
 })
 
 app.post('/api/persons', (request, response) => {
-    const person = request.body
-    if (person.number == null || person.name == null) {
-        response.status(400).send(`{error : 'person must have name and number}`)
-    }
-    else if (persons.find(p => p.name === person.name)) {
-        response.status(400).send(`{error: 'name must be unique'}`)
-    }
-    else {
-        person.id = Math.floor(Math.random() * 100000000)
-        persons = persons.concat(person)
-        response.send(person)
-    }
+    const newPerson = new Person({
+        name: request.body.name,
+        number: request.body.number
+    })
+    newPerson.save().then(result => {
+        response.send(result)
+    })
+})
+
+app.put('/api/persons/:id', (request, response) => {
+    const person = { ...request.body }
+    Person.findByIdAndUpdate(person.id, person, { new: true })
+        .then(updatedPerson => {
+            console.log(updatedPerson)
+            response.send(updatedPerson)
+        })
 })
 
 const PORT = process.env.PORT || 3001
