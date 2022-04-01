@@ -1,1 +1,7 @@
 DELETE http://localhost:3001/api/persons/1
+
+###
+GET http://localhost:3001/api/persons/1
+
+### unknown endpoint
+GET http://localhost:3001/apid/persons/1
