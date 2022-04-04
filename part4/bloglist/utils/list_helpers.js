@@ -5,19 +5,16 @@ const dummy = (blogs) => {
 
 
 const countLikes = (blogs) => {
-    if (blogs.length == 0) {
-        return 0
-    }
-    else if (blogs.length == 1) {
-        return blogs[0].likes
-    }
-    else {
-        let count = 0
-        blogs.forEach(element => {
-            count += element.likes
-        });
-        return count
-    }
+    return blogs.reduce((total, element) => {
+        return total + element.likes
+    }, 0)
 }
-module.exports = { dummy, countLikes }
+
+const favorite = (blogs) => {
+    const numlikes = Math.max(...blogs.map(element => element.likes))
+    console.log('numlikes is ', numlikes)
+    return blogs.find(element => element.likes === numlikes)
+}
+
+module.exports = { dummy, countLikes, favorite }
 
