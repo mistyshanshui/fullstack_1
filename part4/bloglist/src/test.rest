@@ -1,0 +1,12 @@
+GET http://localhost:3003/api/blogs
+### doesn't work yet
+@contentType = application/json
+POST http://localhost:3003/api/blogs  HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "title": "michael's blog",
+    "author": "michael",
+    "url": "",
+    "like": 5
+}
