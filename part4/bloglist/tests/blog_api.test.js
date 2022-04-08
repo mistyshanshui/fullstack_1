@@ -1,6 +1,11 @@
+const logger = require('../utils/logger')
 const supertest = require('supertest')
 const Blog = require('../models/blog')
+const helper = require('../tests/test_helpers')
+
 const app = require('../src/app')
+const help = require('nodemon/lib/help')
+
 const api = supertest(app)
 
 const initialBlogs = [
@@ -82,7 +87,7 @@ test('post notes', async () => {
 test('identifier property named id', async () => {
     const response = await api
         .get('/api/blogs')
-    expect(response.body[0]._id).toBeDefined()
+    expect(response.body[0].id).toBeDefined()
 })
 
 test('post note without title or url should receive 400 user error', async () => {
@@ -105,4 +110,19 @@ test('post note without title or url should receive 400 user error', async () =>
         .post('/api/blogs')
         .send(blog2)
         .expect(400)
+})
+
+test('delete one blog from the database should succeed', async () => {
+    const blogs = await helper.blogsInDb()
+    const blogToDelete = blogs[0]
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const blogsAfterDelete = await helper.blogsInDb()
+    expect(blogsAfterDelete.length).toBe(4)
+
+    const titles = blogsAfterDelete.map(blog => blog.title)
+    expect(titles).not.toContain(blogToDelete.title)
 })
