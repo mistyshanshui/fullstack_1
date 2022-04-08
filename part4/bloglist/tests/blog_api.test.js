@@ -1,5 +1,3 @@
-const mongoose = require('mongoose')
-
 const supertest = require('supertest')
 const Blog = require('../models/blog')
 const app = require('../src/app')
@@ -58,8 +56,8 @@ beforeEach(async () => {
 
 test('get notes', async () => {
     const response = await api
-    .get('/api/blogs')
-    .expect('Content-Type', /application\/json/)
+        .get('/api/blogs')
+        .expect('Content-Type', /application\/json/)
     expect(response.body).toHaveLength(initialBlogs.length)
 })
 
@@ -73,13 +71,18 @@ test('post notes', async () => {
         likes: 2,
         __v: 0
     }
-    const response = await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-    
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
     const getResp = await api.get('/api/blogs')
     expect(getResp.body).toHaveLength(initialBlogs.length + 1)
 })
 
+test.only('identifier property named id', async () => {
+    const response = await api
+        .get('/api/blogs')
+    expect(response.body[0]._id).toBeDefined()
+})

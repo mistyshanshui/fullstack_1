@@ -1,10 +1,15 @@
 
 const error = (...params) => {
-    console.log(...params)
+    if (process.env.NODE_ENV !== "production") {
+        console.log(...params)
+    }
+
 }
 
 const info = (...params) => {
-    console.log(...params)
+    if (process.env.NODE_ENV !== "production") {
+        console.log(...params)
+    }
 }
 
-module.exports = {error, info}
+module.exports = { error, info }
