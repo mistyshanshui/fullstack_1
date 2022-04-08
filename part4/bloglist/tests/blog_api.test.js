@@ -62,26 +62,24 @@ test('get notes', async () => {
 })
 
 
-test('post notes', async () => {
+test.only('post notes', async () => {
     const newBlog = {
-        _id: "5a422bc61b54a676234d17fc",
         title: "Type wars",
         author: "Robert C. Martin",
         url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
-        likes: 2,
-        __v: 0
     }
-    await api
+    const postResp = await api
         .post('/api/blogs')
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
+    expect(postResp.body.likes).toBe(0)
 
     const getResp = await api.get('/api/blogs')
     expect(getResp.body).toHaveLength(initialBlogs.length + 1)
 })
 
-test.only('identifier property named id', async () => {
+test('identifier property named id', async () => {
     const response = await api
         .get('/api/blogs')
     expect(response.body[0]._id).toBeDefined()
