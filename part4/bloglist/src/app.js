@@ -17,4 +17,20 @@ app.use(cors())
 app.use(express.json())
 app.use('/api/blogs', blogRouter)
 
+app.use(blogRouter)
+
+const unknownHandler = (request, response) => {
+    response.status(400).send({ error: 'unknown handler' })
+}
+
+app.use(unknownHandler)
+
+const errorHandler = (error, request, response, next) => {
+    if (error.name == "ValidationError") {
+        response.status(400).send({ error: error.message })
+    }
+}
+
+app.use(errorHandler)
+
 module.exports = app

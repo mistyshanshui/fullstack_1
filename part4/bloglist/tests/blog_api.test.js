@@ -62,7 +62,7 @@ test('get notes', async () => {
 })
 
 
-test.only('post notes', async () => {
+test('post notes', async () => {
     const newBlog = {
         title: "Type wars",
         author: "Robert C. Martin",
@@ -83,4 +83,26 @@ test('identifier property named id', async () => {
     const response = await api
         .get('/api/blogs')
     expect(response.body[0]._id).toBeDefined()
+})
+
+test('post note without title or url should receive 400 user error', async () => {
+    const blog1 = {
+        author: "Robert C. Martin",
+        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(blog1)
+        .expect(400)
+
+    const blog2 = {
+        title: "Type wars",
+        author: "Robert C. Martin",
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(blog2)
+        .expect(400)
 })
