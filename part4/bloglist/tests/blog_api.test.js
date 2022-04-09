@@ -126,3 +126,18 @@ test('delete one blog from the database should succeed', async () => {
     const titles = blogsAfterDelete.map(blog => blog.title)
     expect(titles).not.toContain(blogToDelete.title)
 })
+
+test('should be able to update a blog', async () => {
+    const blogs = await helper.blogsInDb()
+    const blogToUpdate = blogs[0]
+    const newLikes = blogToUpdate.likes + 1
+    const newBlog = {...blogToUpdate, likes:newLikes}
+    logger.info('update : ', blogToUpdate.id, newBlog)
+
+    await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(newBlog)
+
+    const blogsAfter = await helper.blogsInDb()
+    expect(blogsAfter[0].likes).toBe(newLikes)
+})

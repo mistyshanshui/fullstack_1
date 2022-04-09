@@ -12,14 +12,12 @@ mongoose.connect(mongoUrl)
     .then(result => logger.info('connected to MongoDB'))
     .catch(error => logger.error(error.message))
 
-
 app.use(cors())
 app.use(express.json())
 app.use('/api/blogs', blogRouter)
 
-app.use(blogRouter)
-
 const unknownHandler = (request, response) => {
+    logger.error("unknown handler")
     response.status(400).send({ error: 'unknown handler' })
 }
 

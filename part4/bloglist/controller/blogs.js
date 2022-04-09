@@ -32,4 +32,15 @@ blogRouter.delete('/:id', (request, response, next) => {
         .catch(error => next(error))
 })
 
+blogRouter.put('/:id', (request, response, next) => {
+    const newBlog = {...request.body}
+    Blog
+        .findByIdAndUpdate(request.params.id, newBlog, {new:true})
+        .then(result => {
+            logger.info(result)
+            response.status(200).json(result)
+        })
+        .catch(error => next(error))
+})
+
 module.exports = blogRouter
