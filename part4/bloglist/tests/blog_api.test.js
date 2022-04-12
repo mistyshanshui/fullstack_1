@@ -5,6 +5,7 @@ const helper = require('../tests/test_helpers')
 
 const app = require('../src/app')
 const help = require('nodemon/lib/help')
+const { default: mongoose } = require('mongoose')
 
 const api = supertest(app)
 
@@ -131,7 +132,7 @@ test('should be able to update a blog', async () => {
     const blogs = await helper.blogsInDb()
     const blogToUpdate = blogs[0]
     const newLikes = blogToUpdate.likes + 1
-    const newBlog = {...blogToUpdate, likes:newLikes}
+    const newBlog = { ...blogToUpdate, likes: newLikes }
     logger.info('update : ', blogToUpdate.id, newBlog)
 
     await api
@@ -140,4 +141,8 @@ test('should be able to update a blog', async () => {
 
     const blogsAfter = await helper.blogsInDb()
     expect(blogsAfter[0].likes).toBe(newLikes)
+})
+
+afterAll(() => {
+    mongoose.connection.close()
 })
