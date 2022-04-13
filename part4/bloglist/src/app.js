@@ -4,7 +4,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const blogRouter = require('../controller/blogs')
-
+const userRouter = require('../controller/users')
 
 const mongoose = require('mongoose')
 const mongoUrl = config.MONGODB_URI
@@ -15,6 +15,7 @@ mongoose.connect(mongoUrl)
 app.use(cors())
 app.use(express.json())
 app.use('/api/blogs', blogRouter)
+app.use('/api/users', userRouter)
 
 const unknownHandler = (request, response) => {
     logger.error("unknown handler")
