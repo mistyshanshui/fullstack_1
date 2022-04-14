@@ -4,6 +4,7 @@ const supertest = require('supertest')
 const User = require('../models/user')
 const app = require('../src/app')
 const { resource } = require('../src/app')
+const bcryptjs = require('bcryptjs')
 
 const api    = supertest(app)
 
@@ -26,10 +27,16 @@ initUsers = [
 ]
 
 beforeEach(async () => {
+    console.log('in before each')
     await User.deleteMany({})
-    let users = initUsers.map(u => new User(u))
-    let promises = await users.map(u => u.save())
-    await Promise.all(promises)
+    for( let element of initUsers) {
+        const {username, name, password}= element
+        const hash =  bcryptjs.hash(password, 10)
+        const user = new User({username, name, hash})
+        await user.save()
+    }
+    const users = await User.find({})
+    console.log(users)
 })
 
 test('get all users', async () => {
@@ -45,12 +52,27 @@ test('post a user', async()=>{
         "name": "kkkkk",
         "password":"123678"
     }
+
+    console.log('newUser', newUser)
     const response = await api
     .post('/api/users')
     .send(newUser)
     .expect(201)
     .expect('Content-Type', /application\/json/)
     expect(response.body.name).toBe('kkkkk')
+})
+
+test('username and password has to be at least 3 characters long to post', async()=>{
+    const newUser = {
+        "username" : "dd",
+        "name": "kkkkk",
+        "password":"123678"
+    }
+
+    const response = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(400)
 })
 
 afterAll(()=>{
