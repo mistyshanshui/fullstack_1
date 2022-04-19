@@ -1,23 +1,23 @@
 const blogRouter = require('express').Router()
 const logger = require('../utils/logger')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
-blogRouter.get('/', (request, response) => {
-    Blog
-        .find({})
-        .then(blogs => {
-            response.json(blogs)
-        })
+blogRouter.get('/', async (request, response) => {
+    logger.info('inside router get')
+    const blogs = await Blog.find({})//.populate('user')
+    response.json(blogs)
 })
 
-blogRouter.post('/', (request, response, next) => {
+blogRouter.post('/', async (request, response, next) => {
     const blog = new Blog(request.body)
+    const u = await User.findOne({})
+
+    blog.user = u._id.toString()
 
     blog
         .save()
-        .then(result => {
-            response.status(201).json(result)
-        })
+        .then(savedBlog => response.status(201).json(savedBlog))
         .catch(error => next(error))
 })
 
@@ -33,9 +33,9 @@ blogRouter.delete('/:id', (request, response, next) => {
 })
 
 blogRouter.put('/:id', (request, response, next) => {
-    const newBlog = {...request.body}
+    const newBlog = { ...request.body }
     Blog
-        .findByIdAndUpdate(request.params.id, newBlog, {new:true})
+        .findByIdAndUpdate(request.params.id, newBlog, { new: true })
         .then(result => {
             logger.info(result)
             response.status(200).json(result)

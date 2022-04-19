@@ -4,7 +4,6 @@ const Blog = require('../models/blog')
 const helper = require('../tests/test_helpers')
 
 const app = require('../src/app')
-const help = require('nodemon/lib/help')
 const { default: mongoose } = require('mongoose')
 
 const api = supertest(app)
@@ -54,21 +53,26 @@ const initialBlogs = [
 
 
 beforeEach(async () => {
+    logger.info('inside before each')
     await Blog.deleteMany({})
-    let objects = initialBlogs.map(b => new Blog(b))
+    const userId = helper.getAnUserId()
+    let objects = initialBlogs.map(b => new Blog({ ...b, user: `${userId}` }))
     let promises = objects.map(o => o.save())
     await Promise.all(promises)
 })
 
-test('get notes', async () => {
+test('get blogs', async () => {
     const response = await api
         .get('/api/blogs')
         .expect('Content-Type', /application\/json/)
+
+    logger.info(response.body)
+
     expect(response.body).toHaveLength(initialBlogs.length)
 })
 
 
-test('post notes', async () => {
+test('post blogs', async () => {
     const newBlog = {
         title: "Type wars",
         author: "Robert C. Martin",
@@ -80,8 +84,10 @@ test('post notes', async () => {
         .expect(201)
         .expect('Content-Type', /application\/json/)
     expect(postResp.body.likes).toBe(0)
+    expect(postResp.body).toHaveProperty('user')
 
     const getResp = await api.get('/api/blogs')
+    logger.info('after posting blog', getResp.body)
     expect(getResp.body).toHaveLength(initialBlogs.length + 1)
 })
 
@@ -115,7 +121,8 @@ test('post note without title or url should receive 400 user error', async () =>
 
 test('delete one blog from the database should succeed', async () => {
     const blogs = await helper.blogsInDb()
-    const blogToDelete = blogs[0]
+    logger.info('blog to delete======', blogs)
+    const blogToDelete = blogs[0];
 
     await api
         .delete(`/api/blogs/${blogToDelete.id}`)

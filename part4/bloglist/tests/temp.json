@@ -1,0 +1,43 @@
+
+    Received value: [
+    {
+        "author": "Michael Chan",
+        "id": "5a422a851b54a676234d17f7",
+        "likes": 7,
+        "title": "React patterns",
+        "url": "https://reactpatterns.com/",
+        "user": "6257a74fbf33b7be62f1c70e"
+    },
+    {
+        "author": "Edsger W. Dijkstra",
+        "id": "5a422aa71b54a676234d17f8",
+        "likes": 5,
+        "title": "Go To Statement Considered Harmful",
+        "url": "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+        "user": "6257a74fbf33b7be62f1c70e"
+    },
+    {
+        "author": "Robert C. Martin",
+        "id": "5a422b891b54a676234d17fa",
+        "likes": 10,
+        "title": "First class tests",
+        "url": "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+        "user": "6257a74fbf33b7be62f1c70e"
+    },
+    {
+        "author": "Robert C. Martin",
+        "id": "5a422ba71b54a676234d17fb",
+        "likes": 0,
+        "title": "TDD harms architecture",
+        "url": "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+        "user": "6257a74fbf33b7be62f1c70e"
+    },
+    {
+        "author": "Edsger W. Dijkstra",
+        "id": "5a422b3a1b54a676234d17f9",
+        "likes": 12,
+        "title": "Canonical string reduction",
+        "url": "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+        "user": "6257a74fbf33b7be62f1c70e"
+    }
+]
