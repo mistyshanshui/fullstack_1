@@ -24,4 +24,8 @@ userRouter.get('/', async (request, response) => {
     response.json(users)
 })
 
+userRouter.delete('/', async (request, response) =>{
+   await User.deleteMany({})
+})
+
 module.exports = userRouter

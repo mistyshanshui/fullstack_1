@@ -1,0 +1,11 @@
+when to use json or send?
+
+    response
+        .status(401)
+        .json({error: 'invalid username or password'
+    })
+
+    response
+        .status(200)
+        .send({ token, username: user.username, name: user.name })
+    })
