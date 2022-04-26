@@ -15,6 +15,16 @@ mongoose.connect(mongoUrl)
 
 app.use(cors())
 app.use(express.json())
+
+const tokenExtractor = (request, response, next) => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        console.log(authorization.substring(7))
+        request.token = authorization.substring(7)
+    }
+    next()
+}
+app.use(tokenExtractor)
 app.use('/api/blogs', blogRouter)
 app.use('/api/users', userRouter)
 app.use('/api/login', loginRouter)

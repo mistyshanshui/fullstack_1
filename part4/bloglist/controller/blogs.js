@@ -10,28 +10,19 @@ blogRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-const getTokenFrom = request => {
-    const authorization = request.get('authorization')
-    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-        console.log(authorization.substring(7))
-        return authorization.substring(7)
-    }
-    return null
-}
 
 blogRouter.post('/', async (request, response, next) => {
-    const blog = new Blog(request.body)
-    const token = getTokenFrom(request)
-    if (!token) {
-        return response.status(401).json({ error: 'Invalide user name or password' })
+    if (!request.token) {
+        return response.status(401).json({ error: 'token missing' })
     }
-    const decodedToken = jwt.verify(token, process.env.SECRET)
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
     if (!decodedToken.id) {
-        return response.status(401).json({ error: 'token missing or invalid' })
+        return response.status(401).json({ error: 'invalid token' })
     }
 
     const user = User.findById(decodedToken.id)
 
+    const blog = new Blog(request.body)
     blog.user = user._id
     blog
         .save()
