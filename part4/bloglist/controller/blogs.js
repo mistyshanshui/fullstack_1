@@ -12,18 +12,11 @@ blogRouter.get('/', async (request, response) => {
 
 
 blogRouter.post('/', async (request, response, next) => {
-    if (!request.token) {
-        return response.status(401).json({ error: 'token missing' })
+    if (!request.user) {
+        return response.status(401).json({ error: 'invalid user' })
     }
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: 'invalid token' })
-    }
-
-    const user = await User.findById(decodedToken.id)
-
     const blog = new Blog(request.body)
-    blog.user = user._id
+    blog.user = request.user
     blog
         .save()
         .then(savedBlog => response.status(201).json(savedBlog))
@@ -37,21 +30,17 @@ blogRouter.delete('/', async (request, response) => {
 
 blogRouter.delete('/:id', async (request, response, next) => {
     logger.info('in delete :', request.params.id)
-    if (!request.token) {
-        return response.status(401).json({ error: 'token missing' })
-    }
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: 'invalid token' })
+    if (!request.user) {
+        return response.status(401).json({ error: 'user in request is missing or invalid' })
     }
     const blog = await Blog.findById(request.params.id) // how do you know the structure of the request?
 
     if (!blog) {
         return response.status(401).json({ error: 'requested blog doesn\'t exit' })
     }
-    if (blog.user.toString() == decodedToken.id.toString()) {
+    if (blog.user.toString() == request.user.toString()) {
         Blog
-            .remove({ _id: request.params.id })
+            .deleteOne({ _id: request.params.id })
             .then(result => response.status(204).json({ info: 'blog deleted' }))
             .catch(error => next(error))
     }

@@ -6,8 +6,10 @@ const cors = require('cors')
 const blogRouter = require('../controller/blogs')
 const userRouter = require('../controller/users')
 const loginRouter = require("../controller/login")
+const jwt = require('jsonwebtoken')
 
 const mongoose = require('mongoose')
+const User = require('../models/user')
 const mongoUrl = config.MONGODB_URI
 mongoose.connect(mongoUrl)
     .then(result => logger.info('connected to MongoDB'))
@@ -16,16 +18,28 @@ mongoose.connect(mongoUrl)
 app.use(cors())
 app.use(express.json())
 
-const tokenExtractor = (request, response, next) => {
+const userExtractor = async (request, response, next) => {
     const authorization = request.get('authorization')
     if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
         console.log(authorization.substring(7))
-        request.token = authorization.substring(7)
+        const token = authorization.substring(7)
+        if (token) {
+            try {
+                const decodedToken = jwt.verify(token, process.env.SECRET)
+                const user = await User.findById(decodedToken.id)
+                if (user) {
+                    request.user = decodedToken.id
+                }
+            }
+            catch (error) {
+                next(error)
+            }
+        }
     }
     next()
 }
-app.use(tokenExtractor)
-app.use('/api/blogs', blogRouter)
+
+app.use('/api/blogs', userExtractor, blogRouter)
 app.use('/api/users', userRouter)
 app.use('/api/login', loginRouter)
 
@@ -38,6 +52,9 @@ app.use(unknownHandler)
 
 const errorHandler = (error, request, response, next) => {
     if (error.name == "ValidationError") {
+        response.status(400).send({ error: error.message })
+    }
+    if (error.name == "JsonWebTokenError") {
         response.status(400).send({ error: error.message })
     }
 }
