@@ -7,6 +7,7 @@ const blogRouter = require('../controller/blogs')
 const userRouter = require('../controller/users')
 const loginRouter = require("../controller/login")
 const jwt = require('jsonwebtoken')
+require('express-async-errors')
 
 const mongoose = require('mongoose')
 const User = require('../models/user')
@@ -24,15 +25,10 @@ const userExtractor = async (request, response, next) => {
         console.log(authorization.substring(7))
         const token = authorization.substring(7)
         if (token) {
-            try {
-                const decodedToken = jwt.verify(token, process.env.SECRET)
-                const user = await User.findById(decodedToken.id)
-                if (user) {
-                    request.user = decodedToken.id
-                }
-            }
-            catch (error) {
-                next(error)
+            const decodedToken = jwt.verify(token, process.env.SECRET)
+            const user = await User.findById(decodedToken.id)
+            if (user) {
+                request.user = decodedToken.id
             }
         }
     }
