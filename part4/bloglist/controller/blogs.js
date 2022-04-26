@@ -32,10 +32,13 @@ blogRouter.post('/', async (request, response, next) => {
 
 blogRouter.delete('/', async (request, response) => {
     await Blog.deleteMany({})
-    response.status(400).json({ info: "all blogs deleted" })
+    response.status(200).json({ info: "all blogs deleted" })
 })
 
 blogRouter.delete('/:id', (request, response, next) => {
+    if (!request.token) {
+
+    }
     logger.info('in delete :', request.params.id)
     Blog
         .findByIdAndRemove(request.params.id) // how do you know the structure of the request?
