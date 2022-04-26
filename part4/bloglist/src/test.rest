@@ -1,3 +1,6 @@
+###
+DELETE http://localhost:3003/api/blogs
+###
 GET http://localhost:3003/api/blogs
 ### 
 POST http://localhost:3003/api/blogs  HTTP/1.1
@@ -5,8 +8,8 @@ Content-Type: application/json
 
 {
     "title": "spring break",
-    "author": "aa",
-    "url": "",
+    "author": "biesan",
+    "url": "https://fullstackopen.com/en/part4/token_authentication#limiting-creating-new-notes-to-logged-in-users",
     "likes": 7
 }
 

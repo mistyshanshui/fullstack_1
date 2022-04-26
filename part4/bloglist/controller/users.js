@@ -12,9 +12,9 @@ userRouter.post('/', async (request, response) => {
         return response.status(400).json({ error: 'user name must have at least 3 characters' })
     }
     const saltround = 10
-    const passwordHash = await bcryptjs.hash(password, saltround)
+    const passwordhash = await bcryptjs.hash(password, saltround)
 
-    const user = new User({ username, name, passwordHash })
+    const user = new User({ username, name, passwordhash })
     const savedUser = await user.save()
     response.status(201).json(savedUser)
 })
@@ -24,8 +24,9 @@ userRouter.get('/', async (request, response) => {
     response.json(users)
 })
 
-userRouter.delete('/', async (request, response) =>{
-   await User.deleteMany({})
+userRouter.delete('/', async (request, response) => {
+    await User.deleteMany({})
+    response.status(400).json({ info: "all users deleted" })
 })
 
 module.exports = userRouter
