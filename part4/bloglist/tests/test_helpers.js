@@ -4,9 +4,9 @@ const User = require('../models/user')
 
 const blogsInDb = async () => {
     const blogs = await Blog.find({})
-    logger.info('inside blogsInDB', blogs)
+    //logger.info('inside blogsInDB', blogs)
     const blogsjson = blogs.map(blog => blog.toJSON())
-    logger.info('inside blogsInDB', blogsjson)
+    //logger.info('inside blogsInDB', blogsjson)
     return blogsjson
 }
 

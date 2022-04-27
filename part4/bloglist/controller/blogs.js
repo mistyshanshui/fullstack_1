@@ -44,6 +44,9 @@ blogRouter.delete('/:id', async (request, response, next) => {
             .then(result => response.status(204).json({ info: 'blog deleted' }))
             .catch(error => next(error))
     }
+    else{
+        response.status(401).json({error:'unauthorized user'})
+    }
 })
 
 

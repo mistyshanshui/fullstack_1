@@ -1,42 +1,69 @@
 const { default: mongoose } = require('mongoose')
-const logger = require('../utils/logger')
+//const logger = require('../utils/logger')
 const supertest = require('supertest')
 const User = require('../models/user')
 const app = require('../src/app')
-const { resource } = require('../src/app')
 const bcryptjs = require('bcryptjs')
 
-const api    = supertest(app)
+const api = supertest(app)
 
-initUsers = [
+const initUsers = [
     {
-        "username": "blah d",
+        "username": "user1",
         "name": "blah",
         "password": "1234"
     },
     {
-        "username": "blah dblan",
-        "name": "dd",
-        "password": "456"
+        "username": "biesan",
+        "name": "name bdd",
+        "password": "aaa"
     },
     {
-        "username": "blah cc",
-        "name": "dd",
-        "password": "789"
+        "username": "spring break",
+        "name": "aa",
+        "password": "ddd"
     }
 ]
 
 beforeEach(async () => {
     console.log('in before each')
     await User.deleteMany({})
-    for( let element of initUsers) {
-        const {username, name, password}= element
-        const hash =  bcryptjs.hash(password, 10)
-        const user = new User({username, name, hash})
+    for (let element of initUsers) {
+        const { username, name, password } = element
+        const passwordhash = await bcryptjs.hash(password, 10)
+        const user = new User({ username, name, passwordhash })
         await user.save()
     }
     const users = await User.find({})
     console.log(users)
+})
+
+test('post a user', async () => {
+    const newUser = {
+        "username": "ddddd",
+        "name": "kkkkk",
+        "password": "123678"
+    }
+
+    const response = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+    expect(response.body.name).toBe('kkkkk')
+})
+
+test('username and password has to be at least 3 characters long to post', async () => {
+    const newUser = {
+        "username": "dd",
+        "name": "kkkkk",
+        "password": "123678"
+    }
+
+    await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
 })
 
 test('get all users', async () => {
@@ -46,35 +73,6 @@ test('get all users', async () => {
     expect(response.body).toHaveLength(initUsers.length)
 })
 
-test('post a user', async()=>{
-    const newUser = {
-        "username" : "ddddd",
-        "name": "kkkkk",
-        "password":"123678"
-    }
-
-    console.log('newUser', newUser)
-    const response = await api
-    .post('/api/users')
-    .send(newUser)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-    expect(response.body.name).toBe('kkkkk')
-})
-
-test('username and password has to be at least 3 characters long to post', async()=>{
-    const newUser = {
-        "username" : "dd",
-        "name": "kkkkk",
-        "password":"123678"
-    }
-
-    const response = await api
-    .post('/api/users')
-    .send(newUser)
-    .expect(400)
-})
-
-afterAll(()=>{
+afterAll(() => {
     mongoose.connection.close()
 })

@@ -55,8 +55,8 @@ const initialBlogs = [
 beforeEach(async () => {
     logger.info('inside before each')
     await Blog.deleteMany({})
-    const userId = helper.getAnUserId()
-    let objects = initialBlogs.map(b => new Blog({ ...b, user: `${userId}` }))
+    const userId = await helper.getAnUserId()
+    let objects = initialBlogs.map(b => new Blog({ ...b, user: userId }))
     let promises = objects.map(o => o.save())
     await Promise.all(promises)
 })
@@ -66,7 +66,7 @@ test('get blogs', async () => {
         .get('/api/blogs')
         .expect('Content-Type', /application\/json/)
 
-    logger.info(response.body)
+    logger.info('get blogs..................', response.body)
 
     expect(response.body).toHaveLength(initialBlogs.length)
 })
@@ -81,6 +81,7 @@ test('post blogs', async () => {
     const postResp = await api
         .post('/api/blogs')
         .send(newBlog)
+        .set({ Authorization: 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWQiOiI2MjY4Y2Q0YjgxNDM3MmViNGM1ZjhkNjgiLCJpYXQiOjE2NTEwMzU1MTB9.P7pGqFByDurNZOoFOYDWaudDbZQO7n81GujRyz8t_Jg' })
         .expect(201)
         .expect('Content-Type', /application\/json/)
     expect(postResp.body.likes).toBe(0)
@@ -97,15 +98,29 @@ test('identifier property named id', async () => {
     expect(response.body[0].id).toBeDefined()
 })
 
+test('post blog without token should fail with error 401', async ()=>{
+    const blog = {
+        title: "Type wars",
+        author: "Robert C. Martin",
+        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+    }
+    await api
+        .post('/api/blogs')
+        .send(blog)
+        .expect(401)
+
+})
+
 test('post note without title or url should receive 400 user error', async () => {
     const blog1 = {
         author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html"
     }
 
     await api
         .post('/api/blogs')
         .send(blog1)
+        .set({ Authorization: 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWQiOiI2MjY4Y2Q0YjgxNDM3MmViNGM1ZjhkNjgiLCJpYXQiOjE2NTEwMzU1MTB9.P7pGqFByDurNZOoFOYDWaudDbZQO7n81GujRyz8t_Jg' })
         .expect(400)
 
     const blog2 = {
@@ -116,16 +131,18 @@ test('post note without title or url should receive 400 user error', async () =>
     await api
         .post('/api/blogs')
         .send(blog2)
+        .set({ Authorization: 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWQiOiI2MjY4Y2Q0YjgxNDM3MmViNGM1ZjhkNjgiLCJpYXQiOjE2NTEwMzU1MTB9.P7pGqFByDurNZOoFOYDWaudDbZQO7n81GujRyz8t_Jg' })
         .expect(400)
 })
 
 test('delete one blog from the database should succeed', async () => {
     const blogs = await helper.blogsInDb()
-    logger.info('blog to delete======', blogs)
+  //  logger.info('blog to delete======', blogs)
     const blogToDelete = blogs[0];
 
     await api
         .delete(`/api/blogs/${blogToDelete.id}`)
+            .set({ Authorization: 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWQiOiI2MjY4Y2Q0YjgxNDM3MmViNGM1ZjhkNjgiLCJpYXQiOjE2NTEwMzU1MTB9.P7pGqFByDurNZOoFOYDWaudDbZQO7n81GujRyz8t_Jg' })
         .expect(204)
 
     const blogsAfterDelete = await helper.blogsInDb()
