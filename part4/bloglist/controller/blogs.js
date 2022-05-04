@@ -3,6 +3,7 @@ const logger = require('../utils/logger')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+require('express-async-errors')
 
 blogRouter.get('/', async (request, response) => {
     logger.info('inside router get')
@@ -13,14 +14,12 @@ blogRouter.get('/', async (request, response) => {
 
 blogRouter.post('/', async (request, response, next) => {
     if (!request.user) {
-        return response.status(401).json({ error: 'invalid user' })
+        return response.status(401).json({ error: 'Unauthorized user'})
     }
     const blog = new Blog(request.body)
     blog.user = request.user
-    blog
-        .save()
-        .then(savedBlog => response.status(201).json(savedBlog))
-        .catch(error => next(error))
+    const savedBlog = await blog.save()
+    response.status(201).json(savedBlog)        
 })
 
 blogRouter.delete('/', async (request, response) => {
