@@ -1,18 +1,16 @@
 const blogRouter = require('express').Router()
 const logger = require('../utils/logger')
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
 require('express-async-errors')
 
 blogRouter.get('/', async (request, response) => {
     logger.info('inside router get')
-    const blogs = await Blog.find({})//.populate('user')
+    const blogs = await Blog.find({}).populate('user')
     response.json(blogs)
 })
 
 
-blogRouter.post('/', async (request, response, next) => {
+blogRouter.post('/', async (request, response) => {
     if (!request.user) {
         return response.status(401).json({ error: 'Unauthorized user'})
     }
@@ -40,7 +38,7 @@ blogRouter.delete('/:id', async (request, response, next) => {
     if (blog.user.toString() == request.user.toString()) {
         Blog
             .deleteOne({ _id: request.params.id })
-            .then(result => response.status(204).json({ info: 'blog deleted' }))
+            .then(response.status(204).json({ info: 'blog deleted' }))
             .catch(error => next(error))
     }
     else{
@@ -50,6 +48,9 @@ blogRouter.delete('/:id', async (request, response, next) => {
 
 
 blogRouter.put('/:id', (request, response, next) => {
+    if (!request.user) {
+        return response.status(401).json({ error: 'user in request is missing or invalid' })
+    }
     const newBlog = { ...request.body }
     Blog
         .findByIdAndUpdate(request.params.id, newBlog, { new: true })
