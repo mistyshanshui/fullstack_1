@@ -5,7 +5,7 @@ require('express-async-errors')
 
 blogRouter.get('/', async (request, response) => {
     logger.info('inside router get')
-    const blogs = await Blog.find({}).populate('user')
+    const blogs = await Blog.find({}).populate('user', {username:1,_id:0})
     response.json(blogs)
 })
 
